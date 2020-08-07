@@ -12,6 +12,9 @@ import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
+from flask_migrate import Migrate
+import sys
+
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -19,16 +22,20 @@ from forms import *
 app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
+# TODO DONE: connect to a local postgresql database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:3911986@localhost:5432/fyyurapp'
+
 db = SQLAlchemy(app)
 
-# TODO: connect to a local postgresql database
+migrate = Migrate(app, db)
+
 
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
 
 class Venue(db.Model):
-    __tablename__ = 'Venue'
+    __tablename__ = 'venue'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -36,10 +43,13 @@ class Venue(db.Model):
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
+    website = db.Column(db.String(120))
     facebook_link = db.Column(db.String(120))
-
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    image_link = db.Column(db.String(500))
+    genres = db.Column(db.String(500))
+    seeking_talent = db.Column(db.Boolean)
+    seeking_description = db.Column(db.String(500))
+    # TODO DONE: implement any missing fields, as a database migration using Flask-Migrate
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -219,15 +229,36 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
-  # TODO: insert form data as a new Venue record in the db, instead
-  # TODO: modify data to be the data object returned from db insertion
-
-  # on successful db insert, flash success
-  flash('Venue ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
+  error = False
+  try:
+    new_venue = Venue(
+      name = request.form['name'],
+      city = request.form['city'],
+      state = request.form['state'],
+      address = request.form['address'],
+      phone = request.form['phone'],
+      website = request.form.getlist('website'),
+      facebook_link = request.form['facebook_link'],
+      image_link = request.form['image_link'],
+      genres = request.form.getlist('genres'),
+      seeking_talent = True if request.form.get('seeking_talent') == 'y' else False,
+      seeking_description = request.form['seeking_description'],
+    )
+    db.session.add(new_venue)
+    db.session.commit()
+  except SQLAlchemyError as e:
+    print(e)
+    error = True
+    db.session.rollback()
+    flash('An error occurred. Venue ' + request.form['name'] + ' could not be listed.')
+  finally:
+    db.session.close()
+  if not error:
+    flash('Venue ' + request.form['name'] + ' was successfully listed!')
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   return render_template('pages/home.html')
+
+
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
