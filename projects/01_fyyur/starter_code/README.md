@@ -102,6 +102,7 @@ Acceptance Criteria
 
 ##### Stand Out
 
+
 Looking to go above and beyond? This is the right section for you! Here are some challenges to make your submission stand out:
 
 *  Implement artist availability. An artist can list available times that they can be booked. Restrict venues from being able to create shows with artists during a show time that is outside of their availability.
