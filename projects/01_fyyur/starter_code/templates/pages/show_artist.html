@@ -5,6 +5,9 @@
 	<div class="col-sm-6">
 		<h1 class="monospace">
 			{{ artist.name }}
+			<a class="btn btn-success" title="Edit Artist" href="/artists/{{artist.id}}/edit"><i class="fas fa-edit"></i></a>
+			<a class="btn btn-danger" title="Delete Artist" href="/artists/{{ artist.id }}/delete"><i class="fas fa-trash"></i></a>
+
 		</h1>
 		<p class="subtitle">
 			ID: {{ artist.id }}
@@ -26,7 +29,7 @@
 		<p>
 			<i class="fab fa-facebook-f"></i> {% if artist.facebook_link %}<a href="{{ artist.facebook_link }}" target="_blank">{{ artist.facebook_link }}</a>{% else %}No Facebook Link{% endif %}
         </p>
-		{% if artist.seeking_venue %}
+		{% if artist.seeking_talent %}
 		<div class="seeking">
 			<p class="lead">Currently seeking performance venues</p>
 			<div class="description">

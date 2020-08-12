@@ -25,3 +25,8 @@
       //   document.getElementById('error2').className = '';
       // })
   // }
+  export function hello(text) {
+      console.log(text)
+}
+	
+  

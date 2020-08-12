@@ -5,14 +5,17 @@
 	<div class="col-sm-6">
 		<h1 class="monospace">
 			{{ venue.name }}
+			<a class="btn btn-success" title="Edit Venue" href="/venues/{{venue.id}}/edit"><i class="fas fa-edit"></i></a>
+			<a class="btn btn-danger" title="Delete Venue" href="/venues/{{ venue.id }}/delete"><i class="fas fa-trash"></i></a>
+			
 		</h1>
 		<p class="subtitle">
 			ID: {{ venue.id }}
-		</p>
+		</p> 
 		<div class="genres">
 			{% for genre in venue.genres %}
 			<span class="genre">{{ genre }}</span>
-			{% endfor %}
+		{% endfor %}
 		</div>
 		<p>
 			<i class="fas fa-globe-americas"></i> {{ venue.city }}, {{ venue.state }}
@@ -74,6 +77,25 @@
 		{% endfor %}
 	</div>
 </section>
+<script>
+	// venueDelete = document.getElementById('venueDelete')
+	// 	venueDelete.onclick = function(e) {
+	// 		console.log('from onclick')
+	// 		fetch("/venues/{{ venue.id }}/delete", {
+	// 			method: 'GET', // or 'PUT'
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       }
+  //       })
+	// 			// .then(function(e) {
+	// 				// window.location.href = '/venues';
+	// 				// console.log(e)
+	// 			// }).catch(function(e) {
+	// 					// console.log('error', e)
+	// 			// })
+	// 	}
 
+</script>
 {% endblock %}
+
 
