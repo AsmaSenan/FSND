@@ -90,6 +90,9 @@ class FormView extends Component {
             Category
             <select name="category" onChange={this.handleChange}>
               {Object.keys(this.state.categories).map(id => {
+                  {console.log('key='+id+ 'value='+id+' '+this.state.categories[id])}
+                  {console.log(this.state.categories)}
+
                   return (
                     <option key={id} value={id}>{this.state.categories[id]}</option>
                   )
