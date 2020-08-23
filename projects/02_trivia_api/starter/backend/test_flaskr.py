@@ -85,36 +85,36 @@ class TriviaTestCase(unittest.TestCase):
 #---------------------------------------------------------------
 # 4 - DELETE Question
 #---------------------------------------------------------------
-#     def test_delete_question(self):
-#         res = self.client().delete('questions/21')
-#         data = json.loads(res.data)
-#         deleted_question = Question.query.filter(Question.id == 21).one_or_none()
-#         self.assertEqual(res.status_code, 200)
-#         self.assertEqual(data['success'], True)
-#         self.assertEqual(data['deleted_id'], 21)
-#         self.assertTrue(data['total_questions'])
-#         self.assertTrue(len('questions'))
-#         self.assertEqual(deleted_question, None)
+    def test_delete_question(self):
+        res = self.client().delete('questions/26')
+        data = json.loads(res.data)
+        deleted_question = Question.query.filter(Question.id == 21).one_or_none()
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['deleted_id'], 26)
+        self.assertTrue(data['total_questions'])
+        self.assertTrue(len('questions'))
+        self.assertEqual(deleted_question, None)
 
 # #--------- handle error 422  
-#     def test_422_if_question_does_not_exist(self):
-#         res = self.client().delete('/questions/1000')
-#         data = json.loads(res.data)
+    def test_422_if_question_does_not_exist(self):
+        res = self.client().delete('/questions/1000')
+        data = json.loads(res.data)
 
-#         self.assertEqual(res.status_code, 422)
-#         self.assertEqual(data['success'], False)
-#         self.assertEqual(data['message'], 'unprocessable')
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
 
 #---------------------------------------------------------------
 # 5 - CREATE a new Question
 #---------------------------------------------------------------
-    # def test_create_question(self):
-    #     res = self.client().post('/questions', json=self.new_question)
-    #     data = json.loads(res.data)
+    def test_create_question(self):
+        res = self.client().post('/questions', json=self.new_question)
+        data = json.loads(res.data)
         
-    #     self.assertEqual(res.status_code, 200)
-    #     self.assertEqual(data['success'], True)
-    #     # self.assertEqual(data['created_id'], Question.query.orfer_by(Question.id.desc())).one
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        # self.assertEqual(data['created_id'], Question.query.orfer_by(Question.id.desc())).one
 
 #--------- handle error 405  
 
@@ -181,17 +181,9 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['total_questions'])
         self.assertEqual(data['total_questions'], 4)
 
-    def test_get_question_for_quiz_without_questions(self):
-        parameters = {"previous_questions":[1], "quiz_category": {"id": 6}}
-        res = self.client().post("/quizzes", json=parameters)
-        data = json.loads(res.data)
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(data['success'], True)
-        self.assertEqual(data['questions'], None)
 #--------- handle error 422  
-    def test_404_get_question_for_quiz_with_questions(self):
-        parameters = {"previous_questions":[100], "quiz_category": {"id": 40}}
-        res = self.client().post("/quizzes", json=parameters)
+    def test_422_get_question_for_quiz_without_questions(self):
+        res = self.client().post("/quizzes")
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)

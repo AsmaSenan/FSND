@@ -247,12 +247,10 @@ def create_app(test_config=None):
             "success": True,
             "questions": None
           }
-        
       except:  
         abort(422)
       finally:  
         return jsonify(result)
-        
     abort(422)
 #---------------------------------------------------------------
 # 9 - Error Handlers
