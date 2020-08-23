@@ -31,7 +31,7 @@ class TriviaTestCase(unittest.TestCase):
             'question': 'Who discovered penicillin?',
             'answer': 'Alexander Fleming',
             'difficulty': 3,
-            'category': '1',
+            'category': 1,
         }
 
     def tearDown(self):
@@ -85,38 +85,117 @@ class TriviaTestCase(unittest.TestCase):
 #---------------------------------------------------------------
 # 4 - DELETE Question
 #---------------------------------------------------------------
-    def test_delete_question(self):
-        res = self.client().delete('questions/21')
-        data = json.loads(res.data)
-        deleted_question = Question.query.filter(Question.id == 21).one_or_none()
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted_id'], 21)
-        self.assertTrue(data['total_questions'])
-        self.assertTrue(len('questions'))
-        self.assertEqual(deleted_question, None)
+#     def test_delete_question(self):
+#         res = self.client().delete('questions/21')
+#         data = json.loads(res.data)
+#         deleted_question = Question.query.filter(Question.id == 21).one_or_none()
+#         self.assertEqual(res.status_code, 200)
+#         self.assertEqual(data['success'], True)
+#         self.assertEqual(data['deleted_id'], 21)
+#         self.assertTrue(data['total_questions'])
+#         self.assertTrue(len('questions'))
+#         self.assertEqual(deleted_question, None)
 
-#--------- handle error 422  
-    def test_422_if_question_does_not_exist(self):
-        res = self.client().delete('/questions/1000')
-        data = json.loads(res.data)
+# #--------- handle error 422  
+#     def test_422_if_question_does_not_exist(self):
+#         res = self.client().delete('/questions/1000')
+#         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 422)
-        self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'unprocessable')
+#         self.assertEqual(res.status_code, 422)
+#         self.assertEqual(data['success'], False)
+#         self.assertEqual(data['message'], 'unprocessable')
 
 #---------------------------------------------------------------
 # 5 - CREATE a new Question
 #---------------------------------------------------------------
-    def test_create_question(self):
-        res = self.client().post('/questions', json=self.new_question)
+    # def test_create_question(self):
+    #     res = self.client().post('/questions', json=self.new_question)
+    #     data = json.loads(res.data)
+        
+    #     self.assertEqual(res.status_code, 200)
+    #     self.assertEqual(data['success'], True)
+    #     # self.assertEqual(data['created_id'], Question.query.orfer_by(Question.id.desc())).one
+
+#--------- handle error 405  
+
+    def test_405_if_question_creation_not_allowed(self):
+        res = self.client().post('/questions/45', json=self.new_question)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Method not Allowed')
+
+#---------------------------------------------------------------
+# 6 - Search for Question
+#---------------------------------------------------------------
+    def test_search_question_with_results(self):
+        res = self.client().post('/questions', json={'searchTerm': 'title'})
         data = json.loads(res.data)
         
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        # self.assertEqual(data['created_id'], Question.query.orfer_by(Question.id.desc())).one
+        self.assertTrue(data['total_questions'])
+        self.assertEqual(len(data['questions']), 2)
 
+#--------- handle error 405  
+    def test_search_question_without_results(self):
+        res = self.client().post('/questions', json={'searchTerm': 'Asma'})
+        data = json.loads(res.data)
+        
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['total_questions'], 0)
+        self.assertEqual(len(data['questions']), 0)
 
+#---------------------------------------------------------------
+# 6 - Questions Based on Category
+#---------------------------------------------------------------
+    def test_get_questions_by_category(self):
+        res = self.client().get('/categories/1/questions')
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_questions'])
+        self.assertEqual(len(data['questions']), 3)
+        self.assertEqual(data['current_category'], 'Science')
+
+#--------- handle error 404  
+    def test_404_get_questions_with_wrong_category(self):
+        res = self.client().get('/categories/1000/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'resource not found')
+        
+#---------------------------------------------------------------
+# 8 - Play the Quiz
+#---------------------------------------------------------------
+    def test_get_question_for_quiz_with_questions(self):
+        parameters = {"previous_questions":[1], "quiz_category": {"id": 4}}
+        res = self.client().post("/quizzes", json=parameters)
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_questions'])
+        self.assertEqual(data['total_questions'], 4)
+
+    def test_get_question_for_quiz_without_questions(self):
+        parameters = {"previous_questions":[1], "quiz_category": {"id": 6}}
+        res = self.client().post("/quizzes", json=parameters)
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['questions'], None)
+#--------- handle error 422  
+    def test_404_get_question_for_quiz_with_questions(self):
+        parameters = {"previous_questions":[100], "quiz_category": {"id": 40}}
+        res = self.client().post("/quizzes", json=parameters)
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
 
 # Make the tests conveniently executable
 if __name__ == "__main__":

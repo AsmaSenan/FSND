@@ -119,8 +119,20 @@ def create_app(test_config=None):
       abort(422)
   
 #---------------------------------------------------------------
-# 5 - CREATE a new Question
+# 5 - CREATE a new Question & 7 - Search for Question
 #---------------------------------------------------------------
+
+  '''
+  @TODO: 
+  Create a POST endpoint to get questions based on a search term. 
+  It should return any questions for whom the search term 
+  is a substring of the question. 
+
+  TEST: Search by any phrase. The questions list will update to include 
+  only question that include that string within their question. 
+  Try using the word "title" to start. 
+  '''
+
   '''
   @TODO: 
   Create an endpoint to POST a new question, 
@@ -139,35 +151,39 @@ def create_app(test_config=None):
     new_answer = body.get('answer', None)
     new_difficulty = body.get('difficulty', None)
     category = body.get('category', None)
-    try:
-      question = Question(
-        question=new_question,
-        answer=new_answer,
-        category=category,
-        difficulty=new_difficulty
-      )
-      book.insert()
+    searchTerm = body.get('searchTerm', None)
 
-      return jsonify({
-        'success': True,
-        'created_id': question.id,
-      })
+    try:
+      if searchTerm:
+        search_results = Question.query.order_by(Question.id).filter(Question.question.ilike('%{}%'.format(searchTerm))).all()
+        current_questions = paginated_questions(request, search_results)
+
+        return jsonify({
+          'success': True,
+          'questions': current_questions,
+          'total_questions': len(current_questions),
+          'current_category': None
+        })
+      else:
+        question = Question(
+          question=new_question,
+          answer=new_answer,
+          category=category,
+          difficulty=new_difficulty
+        )
+        question.insert()
+
+        return jsonify({
+          'success': True,
+          # 'created_id': question.id,
+        })
 
     except:
       abort(422)
 
-
-  '''
-  @TODO: 
-  Create a POST endpoint to get questions based on a search term. 
-  It should return any questions for whom the search term 
-  is a substring of the question. 
-
-  TEST: Search by any phrase. The questions list will update to include 
-  only question that include that string within their question. 
-  Try using the word "title" to start. 
-  '''
-
+#---------------------------------------------------------------
+# 6 - Questions Based on Category
+#---------------------------------------------------------------
   '''
   @TODO: 
   Create a GET endpoint to get questions based on category. 
@@ -176,8 +192,26 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
+  @app.route('/categories/<int:category_id>/questions')
+  def retrieve_questions_by_category(category_id):
+    questions = Question.query.order_by(Question.id).filter(Question.category == category_id).all()
+    current_questions = paginated_questions(request, questions)
 
+    if len(current_questions) == 0:
+      abort(404)
+    categories = Category.query.order_by(Category.id).all()
+    chosen_category = Category.query.filter_by(id=category_id).one_or_none()
+    return jsonify({
+      'success': True,
+      'questions': current_questions,
+      'total_questions': len(Question.query.all()),
+      "categories": {category.id: category.type for category in categories},
+      "current_category": chosen_category.type
+    })
 
+#---------------------------------------------------------------
+# 8 - Play the Quiz
+#---------------------------------------------------------------
   '''
   @TODO: 
   Create a POST endpoint to get questions to play the quiz. 
@@ -190,6 +224,39 @@ def create_app(test_config=None):
   and shown whether they were correct or not. 
   '''
 
+  @app.route("/quizzes", methods=['POST'])
+  def get_question_for_quiz():
+    if request.data:
+      body = request.get_json()
+      previous_questions = body.get('previous_questions', None)
+      quiz_category = body.get('quiz_category', None)
+      try:
+        if quiz_category['id'] == 0:
+          questions_query = Question.query.filter(Question.id.notin_(previous_questions)).all()
+        else:
+          questions_query = Question.query.filter_by(category= quiz_category['id']).filter(Question.id.notin_(previous_questions)).all()
+        length_of_available_question = len(questions_query)
+        if length_of_available_question > 0:
+          result = {
+            "success": True,
+            "questions": Question.format(questions_query[random.randrange(0, length_of_available_question)]),
+            "total_questions": length_of_available_question
+          }
+        else:
+          result = {
+            "success": True,
+            "questions": None
+          }
+        
+      except:  
+        abort(422)
+      finally:  
+        return jsonify(result)
+        
+    abort(422)
+#---------------------------------------------------------------
+# 9 - Error Handlers
+#---------------------------------------------------------------
   '''
   @TODO: 
   Create error handlers for all expected errors 
@@ -224,17 +291,9 @@ def create_app(test_config=None):
     return jsonify({
       "success": False, 
       "error": 405,
-      "message": "method not allowed"
+      "message": "Method not Allowed"
       }), 405
   
-
-  @app.errorhandler(404)
-  def not_found(error):
-    return jsonify({
-      "success": False, 
-      "error": 404,
-      "message": "resource not found"
-      }), 404
   
   return app
 
