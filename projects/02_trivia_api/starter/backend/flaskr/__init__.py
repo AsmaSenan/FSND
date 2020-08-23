@@ -284,13 +284,13 @@ def create_app(test_config=None):
       "message": "bad request"
       }), 400
 
-  @app.errorhandler(405)
+  @app.errorhandler(500)
   def not_found(error):
     return jsonify({
       "success": False, 
-      "error": 405,
-      "message": "Method not Allowed"
-      }), 405
+      "error": 500,
+      "message": "Internal Server Error"
+      }), 500
   
   
   return app
