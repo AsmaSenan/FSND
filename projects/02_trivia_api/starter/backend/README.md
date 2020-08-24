@@ -133,7 +133,7 @@ The API will return three error types when requests fail:
 - 500: Internal Server Error
 
 ### Endpoints 
-#### GET '/categories'
+#### GET /categories
   - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
   - Request Arguments: None
   - Returns: categories object, that contains an object of id: category_string key:value pairs, success value, and total number of categories
@@ -154,8 +154,7 @@ The API will return three error types when requests fail:
 }
 ```
 
-#### GET '/questions'
-- General:
+#### GET /questions
   - Fetches a dictionary of categories which the keys are the ids and the value is the corresponding string of the category. Also a list of question objects which the attributes are answers, categories, difficulty, ids and questions.
   - Request Arguments: Include a request argument to choose page number, starting from 1.
   - Returns: a list of question objects, dictionary of categories, success value, total number of questions and current category.
@@ -248,5 +247,66 @@ The API will return three error types when requests fail:
   ],
   "success":true,
   "total_questions":18
+}
+```
+#### DELETE /questions/{deleted_id}
+- Deletes the question of the given ID if it exists. Returns the id of the deleted question, success value, total number of questions, and a list of question objects based on current page number to update the frontend. 
+- `curl -X DELETE http://127.0.0.1:5000/questions/24?page=2`
+```
+{
+  "deleted_id":24,
+  "questions":[
+    {
+      "answer":"Escher",
+      "category":2,
+      "difficulty":1,
+      "id":16,
+      "question":"Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
+    },
+    {
+      "answer":"Mona Lisa",
+      "category":2,
+      "difficulty":3,
+      "id":17,
+      "question":"La Giaconda is better known as what?"
+    },
+    {
+      "answer":"One",
+      "category":2,
+      "difficulty":4,
+      "id":18,
+      "question":"How many paintings did Van Gogh sell in his lifetime?"
+    },
+    {
+      "answer":"Jackson Pollock",
+      "category":2,
+      "difficulty":2,
+      "id":19,
+      "question":"Which American artist was a pioneer of Abstract Expressionism, and a leading exponent of action painting?"
+    },
+    {
+      "answer":"The Liver",
+      "category":1,
+      "difficulty":4,
+      "id":20,
+      "question":"What is the heaviest organ in the human body?"
+    },
+    {
+      "answer":"Blood",
+      "category":1,
+      "difficulty":4,
+      "id":22,
+      "question":"Hematology is a branch of medicine involving the study of what?"
+    },
+    {
+      "answer":"Scarab",
+      "category":4,
+      "difficulty":4,
+      "id":23,
+      "question":"Which dung beetle was worshipped by the ancient Egyptians?"
+    }
+  ],
+  "success":true,
+  "total_questions":17
 }
 ```
