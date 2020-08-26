@@ -135,11 +135,12 @@ def create_app(test_config=None):
 
         return jsonify({
           'success': True,
-          # 'created_id': question.id,
+          'created_id': question.id,
+          'total_questions': len(Question.query.all())
         })
 
     except:
-      abort(422)
+      abort(400)
 
 #---------------------------------------------------------------
 # 6 - Questions Based on Category
@@ -172,7 +173,7 @@ def create_app(test_config=None):
   def get_question_for_quiz():
     if request.data:
       body = request.get_json()
-      previous_questions = body.get('previous_questions', None)
+      previous_questions = body.get('previous_questions', [])
       quiz_category = body.get('quiz_category', None)
       try:
         if quiz_category['id'] == 0:
@@ -196,17 +197,18 @@ def create_app(test_config=None):
                 )
               ]
             ),
-            "total_questions": length_of_available_question
           }
         else:
           result = {
             "success": True,
             "questions": None
           }
-      except:  
-        abort(422)
-      finally:  
         return jsonify(result)
+
+      except Exception as e:
+        print(e)
+        abort(400)
+
     abort(422)
 #---------------------------------------------------------------
 # 9 - Error Handlers

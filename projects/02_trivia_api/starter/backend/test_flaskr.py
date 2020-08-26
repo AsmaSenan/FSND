@@ -29,20 +29,17 @@ class TriviaTestCase(unittest.TestCase):
         
         # Initialize and assign a new question to insert it in the DB
         self.new_question = {
-            'question': 'Who discovered penicillin?',
-            'answer': 'Alexander Fleming',
-            'difficulty': 3,
-            'category': 2,
+            "question": "What is the capital of Yemen?",
+             "answer": "Sanaa", 
+             "difficulty": 4, 
+             "category": 3
         }
 
     def tearDown(self):
         """Executed after reach test"""
         pass
 
-    """
-    TODO
-    Write at least one test for each test for successful operation and for expected errors.
-    """
+    
 #---------------------------------------------------------------
 # 3 - Successful Test to Retrieve Categories
 #---------------------------------------------------------------
@@ -109,11 +106,11 @@ class TriviaTestCase(unittest.TestCase):
 # 5 - Successful Test to CREATE a new Question
 #---------------------------------------------------------------
     # def test_create_question(self):
-    #     res = self.client().post('/questions', json=self.new_question)
-    #     data = json.loads(res.data)
+        # res = self.client().post('/questions', json=self.new_question)
+        # data = json.loads(res.data)
         
-    #     self.assertEqual(res.status_code, 200)
-    #     self.assertEqual(data['success'], True)
+        # self.assertEqual(res.status_code, 200)
+        # self.assertEqual(data['success'], True)
 
 #--------- Test if question creation method not allowed => error code 405  
     def test_405_if_question_creation_not_allowed(self):
@@ -142,6 +139,16 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertEqual(data['total_questions'], 0)
         self.assertEqual(len(data['questions']), 0)
+
+#--------- Test if for Searching Questions without Request Arguments => error code 500
+    def test_500_search_question_without_arguments(self):
+        res = self.client().post('/questions')
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 500)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Internal Server Error')
+
+     
 
 #---------------------------------------------------------------
 # 6 - Successful Test to GET Questions Based on Category
@@ -172,17 +179,15 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertTrue(data['total_questions'])
-        self.assertEqual(data['total_questions'], 4)
 
-#--------- Test to get questions without parameters(category and previous questions) => error code 500  
-    def test_500_get_question_for_quiz_without_questions(self):
+#--------- Test to get questions without parameters(category and previous questions) => error code 400  
+    def test_400_get_question_for_quiz_without_questions(self):
         parameters = {}
         res = self.client().post("/quizzes", json=parameters)
         data = json.loads(res.data)
-        self.assertEqual(res.status_code, 500)
+        self.assertEqual(res.status_code, 400)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Internal Server Error')
+        self.assertEqual(data['message'], 'bad request')
 
 
 # Make the tests conveniently executable

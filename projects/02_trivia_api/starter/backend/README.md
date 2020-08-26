@@ -99,17 +99,6 @@ psql trivia_test < trivia.psql
 python test_flaskr.py
 ```
 
-
-
-
-
-
-
-
-
-
-
-
 ## API Reference
 
 ### Getting Started
@@ -250,8 +239,10 @@ The API will return three error types when requests fail:
 }
 ```
 #### DELETE /questions/{deleted_id}
-- Deletes the question of the given ID if it exists. Returns the id of the deleted question, success value, total number of questions, and a list of question objects based on current page number to update the frontend. 
-- `curl -X DELETE http://127.0.0.1:5000/questions/24?page=2`
+  - Deletes The question of the given ID if it exists. 
+  - Request Arguments: Question id to delete.
+  - Returns: The id of the deleted question, success value, total number of questions, and a list of question objects based on current page number to update the frontend. 
+  - Sample: `curl -X DELETE http://127.0.0.1:5000/questions/24?page=2`
 ```
 {
   "deleted_id":24,
@@ -309,4 +300,101 @@ The API will return three error types when requests fail:
   "success":true,
   "total_questions":17
 }
+```
+#### POST /questions
+##### This endpoint either to create a question or to search for specific questions
+  - Creates a new question using the submitted question, answer, difficulty rating and category.
+  - Request Arguments: The question to insert, its answer, the difficulty rating of the question and its category.  
+  - Returns:The id of the created question, success value and total  number of questions. 
+  - Sample for creating a question: `curl -X POST http://127.0.0.1:5000/questions -H "Content-Type: application/json" -d '{ "question": "what is the capital of Yemen?", "answer": "Sanaa", "difficulty": 4, "category": 3 }'`
+```
+{
+  "created_id":39,
+  "success":true,
+  "total_questions":18
+}
+```
+  - Otherwise search for questions using the submitted search term.
+  - Request Arguments: The term to search.  
+  - Returns: A list of any questions for whom the search term is a substring of the question, current category, success value and total  number of questions. Results are paginated in groups of 10.
+  - Sample for searching for questions: `curl -X POST http://127.0.0.1:5000/questions -H "Content-Type: application/json" -d '{ "searchTerm": "Yemen"}'`
+```
+{
+  "current_category":null,
+  "questions":[
+    {
+      "answer":"Sanaa",
+      "category":3,
+      "difficulty":4,
+      "id":35,
+      "question":"what is the capital of Yemen?"
+    }
+  ],
+  "success":true,
+  "total_questions":1
+}
+```
+
+#### GET /questions/{category_id}/questions
+  - Fetches a dictionary of categories. Also a list of question objects based on the selected category.
+  - Request Arguments: Category ID.
+  - Returns: a list of question objects in the selected category, dictionary of categories, success value, total number of questions in all category and current category "the selected category".
+  - Results are paginated in groups of 10. 
+  - Sample: `curl http://127.0.0.1:5000/categories/3/questions`
+```
+{
+  "categories":
+  {
+    "1":"Science",
+    "2":"Art",
+    "3":"Geography",
+    "4":"History",
+    "5":"Entertainment",
+    "6":"Sports"
+  },
+  "current_category":"Geography",
+  "questions":[
+    {
+      "answer":"Lake Victoria",
+      "category":3,
+      "difficulty":2,
+      "id":13,
+      "question":"What is the largest lake in Africa?"
+    },
+    {
+      "answer":"Agra",
+      "category":3,
+      "difficulty":2,
+      "id":15,
+      "question":"The Taj Mahal is located in which Indian city?"
+    },
+    {
+      "answer":"Sanaa",
+      "category":3,
+      "difficulty":4,
+      "id":35,
+      "question":"what is the capital of Yemen?"
+    }
+  ],
+  "success":true,
+  "total_questions":18
+}
+```
+#### POST /quizzes
+  - Fetches questions to play the quiz. The question based on the category id or 0 to get the questions from all categories and without including previous question which has been already played.
+  - Request Arguments: Category ID or 0 and previous question parameters.
+  - Returns: a random questions within the given category, if provided, and that is not one of the previous questions and success value.
+  - Sample: ` curl -X POST http://127.0.0.1:5000/quizzes -H "Content-Type: application/json" -d '{"previous_questions": [5, 18, 23, 10], "quiz_category": {"id":0}}'`
+```
+{
+  "questions":
+  {
+    "answer":"Muhammad Ali",
+    "category":4,
+    "difficulty":1,
+    "id":9,
+    "question":"What boxer's original name is Cassius Clay?"
+  },
+  "success":true,
+  }
 ```
