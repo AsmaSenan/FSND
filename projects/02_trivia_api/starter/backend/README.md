@@ -338,7 +338,7 @@ The API will return three error types when requests fail:
 #### GET /questions/{category_id}/questions
   - Fetches a dictionary of categories. Also a list of question objects based on the selected category.
   - Request Arguments: Category ID.
-  - Returns: a list of question objects in the selected category, dictionary of categories, success value, total number of questions in all category and current category "the selected category".
+  - Returns: a list of question objects in the selected category, dictionary of categories, success value, the current category "which has been selected" and total number of questions in all category.
   - Results are paginated in groups of 10. 
   - Sample: `curl http://127.0.0.1:5000/categories/3/questions`
 ```
